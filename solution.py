@@ -13,16 +13,19 @@ class solution:
 
         return count
 
-    def reduction(self, times, distance):#计算从信号发射点到信号检测点的信号强度衰减
+    # 计算从信号发射点到信号检测点的信号强度衰减
+    #根据公式，我舍去了常数部分，PLE暂设为0.5， 每穿过一堵墙的损耗暂设为10dB，均为经验值
+    def reduction(self, times, distance):
         reduce = 1
-
+        loss = (distance) ** 0.5 * 10 ** times
+        reduce = reduce / loss
         return reduce
 
     def fitness(self, background):#适应度函数，返回值为修改过的fit_number
         results_in_background = []
         for room in background.rooms:#计算每个房间的每个信号检测点的信号强度
             results = []
-            TestPoint = room.points
+            TestPoint = background.points(room)
             for point in TestPoint:
                 result_at_the_point = 0
                 for AP in location_set:
@@ -32,4 +35,5 @@ class solution:
                     result_at_the_point += self.emission_intensity * reduction
                 results.append(result_at_the_point)
             results_in_background.append(results)
+        return results_in_background
 
