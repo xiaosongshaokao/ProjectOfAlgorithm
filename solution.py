@@ -1,5 +1,6 @@
 #这个文件中需要写一个解类，此类需要包含一个解中所有的AP分布，并包含适应度函数
-from env import *
+from env import env
+
 location_set = [[0,0],[1,1],[2,2],[3,3]]
 class solution:
     def __init__(self, location=None):
@@ -24,9 +25,9 @@ class solution:
 
     def fitness(self, background):#适应度函数，返回值为修改过的fit_number
         results_in_background = []
-        for room in background.rooms:#计算每个房间的每个信号检测点的信号强度
+        for i in range(0, background.nroom):#计算每个房间的每个信号检测点的信号强度
+            TestPoint = background.checkpoint[i]
             results = []
-            TestPoint = background.points(room)
             for point in TestPoint:
                 result_at_the_point = 0
                 for AP in location_set:
@@ -38,12 +39,14 @@ class solution:
             results_in_background.append(results)
         return results_in_background
 
-    def judgePopulation(self, results):  # 判断函数，用来决定特定种群这一组解的价值
-        def judgeAP(self, resultOfpoint):
+    def judgePopulation(self,results):#判断函数，用来决定特定种群这一组解的价值
+
+        def judgeAP(self, resultOfpoint):#加权函数
             value = resultOfpoint
             return value
 
         total_sum = 0
-        for result in results:
-            total_sum += judgeAP(self, result)
+        for room_result in results:
+            for point_result in room_result:
+                total_sum += judgeAP(self,point_result)
         return total_sum
