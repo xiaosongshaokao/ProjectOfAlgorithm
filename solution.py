@@ -37,3 +37,13 @@ class solution:
             results_in_background.append(results)
         return results_in_background
 
+    def judgePopulation(self,results):#判断函数，用来决定特定种群这一组解的价值
+
+        def judgeAP(self, resultOfpoint):
+            value = resultOfpoint
+            return value
+        
+        total_sum = 0
+        for result in results:
+            total_sum += judgeAP(self,result)
+        return total_sum
