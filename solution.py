@@ -1,4 +1,5 @@
 #这个文件中需要写一个解类，此类需要包含一个解中所有的AP分布，并包含适应度函数
+from env import *
 location_set = [[0,0],[1,1],[2,2],[3,3]]
 class solution:
     def __init__(self, location=None):
@@ -37,3 +38,12 @@ class solution:
             results_in_background.append(results)
         return results_in_background
 
+    def judgePopulation(self, results):  # 判断函数，用来决定特定种群这一组解的价值
+        def judgeAP(self, resultOfpoint):
+            value = resultOfpoint
+            return value
+
+        total_sum = 0
+        for result in results:
+            total_sum += judgeAP(self, result)
+        return total_sum
