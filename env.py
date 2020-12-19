@@ -91,6 +91,8 @@ class Env:  # default size of environment : 5m*12m
         self.nroom = nroom
         structure = np.zeros([50, 120])  # get a 2-dimensional array of the environment
         check_point = {}
+        hwall = []
+        vwall = []
         if nroom == 1:
             check_point[1] = [[0, 0], [0, 119], [24, 59], [49, 0], [49, 119]]
             for i in range(120):
@@ -101,6 +103,8 @@ class Env:  # default size of environment : 5m*12m
                 structure[i][119] = 1
             self.structure = structure
             self.checkpoint = check_point
+            self.hwall = hwall
+            self.vwall = vwall
         else:
             for i in range(1, nroom + 1):
                 points = room[i]
@@ -110,15 +114,19 @@ class Env:  # default size of environment : 5m*12m
                     for k in range(j + 1, length):
                         if points[j][0] == points[k][0]:
                             col = points[j][0]
+                            vwall.append([col, points[j][1], points[k][1]])
                             for index in range(points[j][1], points[k][1] + 1):
                                 structure[index][col] = 1
                         if points[j][1] == points[k][1]:
                             row = points[j][1]
+                            hwall.append([row, points[j][0], points[k][0]])
                             for index in range(points[j][0], points[k][0] + 1):
                                 structure[row][index] = 1
                 check_point[i] = checkpoint(points)  # 得到每一个房间的检测点数组
             self.structure = structure
             self.checkpoint = check_point
+            self.hwall = hwall
+            self.vwall = vwall
 
     # def show(self):
     #     plt.scatter(self.structure)
