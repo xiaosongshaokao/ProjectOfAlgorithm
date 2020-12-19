@@ -12,7 +12,25 @@ class solution:
 
     def ThroughTheWall(self, AP, TestPoint, background):#计算从信号发射点到信号检测点穿墙次数
         count = 0
-
+        row = background.hwall
+        column = background.vwall
+        slope = (AP[1] - TestPoint[1]) / (AP[0] - TestPoint[0])
+        cut_off = TestPoint[1] - AP[1] * slope
+        for wall in row:
+            cross = (wall[1] - cut_off) / slope
+            if AP[1] < TestPoint[1]:
+                if AP[1] < wall[0] and wall[0] < TestPoint[1] and wall[1] < cross and cross < wall[2]:
+                    count += 1
+            else:
+                if TestPoint[1] < wall[0] and wall[0] < AP[1] and wall[1] < cross and cross < wall[2]:
+                    count += 1
+        for wall in column:
+            cross = slope * wall[0] + cut_off
+            if AP[0] < TestPoint[0]:
+                if AP[0] < wall[0] and wall[0] < TestPoint[0] and wall[1] < cross and cross < wall[2]:
+                    count += 1
+                if TestPoint[0] < wall[0] and wall[0] < AP[0] and wall[1] < cross and cross < wall[2]:
+                    count += 1
         return count
 
     # 计算从信号发射点到信号检测点的信号强度衰减
@@ -28,7 +46,11 @@ class solution:
         for i in range(0, background.nroom):#计算每个房间的每个信号检测点的信号强度
             TestPoint = background.checkpoint[i]
             results = []
-            for point in TestPoint:
+            All_point = []
+            for points in TestPoint:#points每个房间切分出的小矩形
+                for j in points:
+                    All_point.append(j)
+            for point in All_point:
                 result_at_the_point = 0
                 for AP in location_set:
                     times = self.ThroughTheWall(AP, point, background)

@@ -81,9 +81,9 @@ def checkpoint(lis):  # 根据房间的拐点列表返回检测点列表,默认�
         del lis[0]
         del lis[0]
         # print(lis)
-        check_point.append(checkpoint(lis))
+        for i in checkpoint(lis):
+            check_point.append(i)
         return check_point
-
 
 class Env:  # default size of environment : 5m*12m
     # the number of rooms, the dictionary of inflection point(x,y)
