@@ -1,25 +1,27 @@
 import random
-class Map():
-    '''
-    :param:地图类
-    :param:使用时需要传入行列两个参数 再实例化
-    '''
-
-    def __init__(self,row,col):
-        '''
-        :param:row::行
-        :param:col::列
-        '''
-        self.data = []
-        self.row = row
-        self.col = col
-    def map_init(self):
-        '''刘攀'''
-    def map_Obstacle(self,num):
-        '''
-        :param:num:地图障碍物数量
-        :return：返回包含障碍物的地图数据
-        '''
+from solution import *
+from  env import *
+# class Map():
+#     '''
+#     :param:地图类
+#     :param:使用时需要传入行列两个参数 再实例化
+#     '''
+#
+#     def __init__(self,row,col):
+#         '''
+#         :param:row::行
+#         :param:col::列
+#         '''
+#         self.data = []
+#         self.row = row
+#         self.col = col
+#     def map_init(self):
+#         '''刘攀'''
+#     def map_Obstacle(self,num):
+#         '''
+#         :param:num:地图障碍物数量
+#         :return：返回包含障碍物的地图数据
+#         '''
 
 #step2 初始化种群 也是最难的一步
 class Population():
@@ -50,20 +52,58 @@ def calvalue(popu):
     return None
 
 #step4 选择
+def quick_sort(li, start, end):
+    # 分治 一分为二
+    # start=end ,证明要处理的数据只有一个
+    # start>end ,证明右边没有数据
+    if start >= end:
+        return
+    # 定义两个游标，分别指向0和末尾位置
+    left = start
+    right = end
+    # 把0位置的数据，认为是中间值
+    mid = li[left]
+    while left < right:
+        # 让右边游标往左移动，目的是找到小于mid的值，放到left游标位置
+        while left < right and li[right].fit_number >= mid.fit_number:
+            right -= 1
+        li[left] = li[right]
+        # 让左边游标往右移动，目的是找到大于mid的值，放到right游标位置
+        while left < right and li[left].fit_number < mid.fit_number:
+            left += 1
+        li[right] = li[left]
+    # while结束后，把mid放到中间位置，left=right
+    li[left] = mid
+    # 递归处理左边的数据
+    quick_sort(li, start, left-1)
+    # 递归处理右边的数据
+    quick_sort(li, left+1, end)
+
 def selection(pop,value):
     '''
     :param pop:种群
     :param value:适应度值列表
     :return:返回新的种群
     '''
-
-    ###原来的方法会丢失种群数量
-    now_value=[]#做倒数后的适应度值列表
-    P_value = []  #存放适应度值占总比概率的列表
+    quick_sort(pop, 0, len(pop))
+    ini_length = len(pop)#输入个体的总数
+    remaining_number = ini_length // 2#确定保留的强者数量
+    danger_number = ini_length - remaining_number#可能会被淘汰的弱者数量
+    elimination_rate = []#弱者们各自可能被淘汰的概率
     random_deci = []#存放随机的小数
-    new_popu = []       #选择后的种群
-    sum_value = 0   #存放适应度的总和  计算轮盘赌的概率
-    ...
+    inteval = 1 / danger_number
+    #分别计算死亡淘汰概率和随机数
+    for i in range(0, danger_number):
+        elimination_rate.append(i * inteval)
+    for i in range(0, danger_number):
+        random_deci.append(random.random())
+    new_popu = []       #选择后的个体
+    for i in range(0, remaining_number):
+        new_popu.append(pop[i])
+    #如果随机数大于淘汰概率，则个体保留
+    for i in range(0, danger_number):
+        if elimination_rate[i] < random_deci[i]:
+            new_popu.append(pop[remaining_number + i])
     return new_popu
 
 #step5 交叉   拟采用单点交叉
@@ -109,3 +149,7 @@ def mutation(children,pm):
     ...
     return new_popu
 
+if __name__ == '__main__':
+    env = Env()
+
+    print("result is " )
