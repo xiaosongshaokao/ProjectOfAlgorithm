@@ -9,6 +9,7 @@ class solution:
         self.location = location
         self.fit_number = 0
         self.emission_intensity = 100
+        self.gene = None
 
     def ThroughTheWall(self, AP, TestPoint, background):#计算从信号发射点到信号检测点穿墙次数
         count = 0

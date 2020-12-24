@@ -118,35 +118,37 @@ def selection(pop,value):
     return new_popu
 
 #step5 交叉   拟采用单点交叉
-def cross(parents,pc):
+def cross(parents_entity,pc):
     '''
     :param parents: 交叉的父类
     :param pc:   交叉概率
     :return:
     '''
-    children = []  #首先创建一个子代 空列表 存放交叉后的种群
+    parents = []
+    children = []  #首先创建一个子代 空列表 存放交叉后的种群基因型
     single_popu_index_list = []#存放重复内容的指针
-    lenparents = len(parents)  #先提取出父代的个数  因为要配对 奇数个的话会剩余一个
+    lenparents = len(parents_entity)  #先提取出父代的个数  因为要配对 奇数个的话会剩余一个
+    for i in range(0, lenparents):
+        parents.append(parents_entity[i].gene)
     parity = lenparents % 2 #计算出长度奇偶性  parity= 1 说明是奇数个  则需要把最后一条个体直接加上 不交叉
     for i in range(0,lenparents-1,2):       #每次取出两条个体 如果是奇数个则长度要减去 一  range函数不会取最后一个
-        single_now_popu = parents[i]   #取出当前选中的两个父代中的第一个
-        single_next_popu = parents[i+1]#取出当前选中的两个父代中的第二个
-        children.append([]) #子代添加两行  稍后存取新的种群
-        children.append([])
+        single_now_popu = parents[i]        #取出当前选中的两个父代中的第一个
+        single_next_popu = parents[i+1]     #取出当前选中的两个父代中的第二个
         index_content = list(set(single_now_popu).intersection(set(single_next_popu))) #第一条路经与第二条路经重复的内容
         num_rep = len(index_content)          #重复内容的个数
         if random.random() < pc and num_rep>=3:
             content = index_content[random.randint(0,num_rep-1)]   #随机选取一个重复的内容
             now_index = single_now_popu.index(content)  #重复内容在第一个父代中的索引
             next_index = single_next_popu.index(content)#重复内容在第二个父代中的索引
-            children[i] = single_now_popu[0:now_index + 1] + single_next_popu[next_index + 1:]
-            children[i+1] = single_next_popu[0:next_index + 1] + single_now_popu[now_index + 1:]
+            children.append(single_now_popu[0:now_index + 1] + single_next_popu[next_index + 1:])
+            children.append(single_next_popu[0:next_index + 1] + single_now_popu[now_index + 1:])
+            children.append(single_now_popu)
+            children.append(single_next_popu)
         else:
-            children[i] = parents[i]
-            children[i+1] = parents[i+1]
+            children.append(single_now_popu)
+            children.append(single_next_popu)
     if parity == 1:     #如果是个奇数  为了保证种群规模不变 需要加上最后一条
-        children.append([]) #子代在添加一行
-        children[-1] = parents[-1] #直接遗传给下一代
+        children.append(parents[lenparents - 1]) #子代在添加一行,直接遗传给下一代
     return children
 
 #step6 变异
