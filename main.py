@@ -23,12 +23,24 @@ from  env import *
 #         :return：返回包含障碍物的地图数据
 #         '''
 
-#step2 初始化种群 也是最难的一步
+# step2 初始化种群 也是最难的一步
 class Population():
-    def __init__(self):
+    # 房间个数决定AP最大数目
+    def __init__(self, number):
         '''
         初始化
         '''
+        self.number = number
+        pos = []
+        for i in range(number):
+            while True:
+                row = random.randint(0, 49)
+                col = random.randint(0, 119)
+                if env.structure[row][col] and ([col, row] in pos):
+                    continue
+                break
+            pos.append([col, row])
+        self.appos = pos
 
     def Population_Init(self):
         '''
@@ -36,9 +48,8 @@ class Population():
         '''
         return None
 
-    def Generate_Sample_AP(self):#生成可进行采样计算的各组AP
+    def Generate_Sample_AP(self):  # 生成可进行采样计算的各组AP
         '''
-
         '''
         return None
 
