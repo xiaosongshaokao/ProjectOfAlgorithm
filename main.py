@@ -27,7 +27,7 @@ import numpy as np
 # step2 初始化种群 也是最难的一步
 class Population:
     # 房间个数决定AP最大数目
-        def __init__(self, number, N):  # number指AP数量，N是种群规模
+    def __init__(self, number, N):  # number指AP数量，N是种群规模
         """
         初始化
         """
