@@ -1,6 +1,7 @@
 import random
 from solution import *
 from  env import *
+import numpy as np
 # class Map():
 #     '''
 #     :param:地图类
@@ -24,14 +25,15 @@ from  env import *
 #         '''
 
 # step2 初始化种群 也是最难的一步
-class Population():
+class Population:
     # 房间个数决定AP最大数目
     def __init__(self, number):
-        '''
+        """
         初始化
-        '''
+        """
         self.number = number
         pos = []
+        gene = np.zeros(number * 13, dtype='int')  # 128 = 2^7, 64 = 2^6
         for i in range(number):
             while True:
                 row = random.randint(0, 49)
@@ -40,7 +42,20 @@ class Population():
                     continue
                 break
             pos.append([col, row])
-        self.appos = pos
+            cnt = 0
+            start_index = i * 13
+            while col != 0:
+                cnt += 1
+                gene[start_index + 7 - cnt] = col % 2
+                col = col // 2
+            cnt = 0
+            while row != 0:
+                cnt += 1
+                gene[start_index + 13 - cnt] = row % 2
+                row = row // 2
+
+        self.appos = pos  # 各AP位置
+        self.gene = gene  # 各AP位置对应的基因型，先横坐标，后纵坐标
 
     def Population_Init(self):
         '''
@@ -52,6 +67,21 @@ class Population():
         '''
         '''
         return None
+
+
+def gene2pos(gene):  # 将基因型解码至一个包含各AP位置的数组
+    n = int(len(gene) / 13)
+    pos = []
+    for i in range(n):
+        start_index = 13 * i
+        col = 0
+        row = 0
+        for j in range(7):
+            col += gene[start_index + j] * np.power(2, 6 - j)
+        for j in range(6):
+            row += gene[start_index + 7 + j] * np.power(2, 5 - j)
+        pos.append([col, row])
+    return pos
 
 #step3 计算适应度函数
 def calvalue(popu):
