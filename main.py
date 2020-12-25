@@ -27,35 +27,35 @@ import numpy as np
 # step2 初始化种群 也是最难的一步
 class Population:
     # 房间个数决定AP最大数目
-    def __init__(self, number):
+        def __init__(self, number, N):  # number指AP数量，N是种群规模
         """
         初始化
         """
+        entity = []
         self.number = number
-        pos = []
-        gene = np.zeros(number * 13, dtype='int')  # 128 = 2^7, 64 = 2^6
-        for i in range(number):
-            while True:
-                row = random.randint(0, 49)
-                col = random.randint(0, 119)
-                if env.structure[row][col] and ([col, row] in pos):
-                    continue
-                break
-            pos.append([col, row])
-            cnt = 0
-            start_index = i * 13
-            while col != 0:
-                cnt += 1
-                gene[start_index + 7 - cnt] = col % 2
-                col = col // 2
-            cnt = 0
-            while row != 0:
-                cnt += 1
-                gene[start_index + 13 - cnt] = row % 2
-                row = row // 2
-
-        self.appos = pos  # 各AP位置
-        self.gene = gene  # 各AP位置对应的基因型，先横坐标，后纵坐标
+        for k in range(N):
+            gene = np.zeros(number * 13, dtype='int')  # 128 = 2^7, 64 = 2^6
+            for i in range(number):
+                while True:
+                    row = random.randint(0, 49)
+                    col = random.randint(0, 119)
+                    if env.structure[row][col] and ([col, row] in pos):
+                        continue
+                    break
+                cnt = 0
+                start_index = i * 13
+                while col != 0:
+                    cnt += 1
+                    gene[start_index + 7 - cnt] = col % 2
+                    col = col // 2
+                cnt = 0
+                while row != 0:
+                    cnt += 1
+                    gene[start_index + 13 - cnt] = row % 2
+                    row = row // 2
+            self.gene = gene  # 各AP位置对应的基因型，先横坐标，后纵坐标
+            entity.append(gene)
+        self.entity = entity
 
     def Population_Init(self):
         '''
