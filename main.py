@@ -188,8 +188,16 @@ def mutation(children,pm):
     :param pm: 变异概率
     :return: 返回变异后的新种群
     '''
+    count = 0
     new_popu = []
-    ...
+    for i in children:
+        new_popu.append([])
+        for j in i:
+            num = random.random()
+            if num < pm:
+                j = (j + 1) % 2
+            new_popu[count].append(j)
+        count += 1
     return new_popu
 
 if __name__ == '__main__':
