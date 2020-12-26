@@ -26,52 +26,6 @@ import numpy as np
 #         :return：返回包含障碍物的地图数据
 #         '''
 
-# step2 初始化种群 也是最难的一步
-class Population:
-    # 房间个数决定AP最大数目
-    def __init__(self, number, N):  # number指AP数量，N是种群规模
-        """
-        初始化
-        """
-        entity = []
-        self.N = N  # 循环时用
-        for k in range(N):
-            pos = []
-            gene = np.zeros(number * 13, dtype='int')  # 128 = 2^7, 64 = 2^6 各AP位置对应的基因型，先横坐标，后纵坐标
-            for i in range(number):
-                while True:
-                    row = random.randint(0, 49)
-                    col = random.randint(0, 119)
-                    if env.structure[row][col] and ([col, row] in pos):
-                        continue
-                    break
-                pos.append([col, row])
-                cnt = 0
-                start_index = i * 13
-                while col != 0:
-                    cnt += 1
-                    gene[start_index + 7 - cnt] = col % 2
-                    col = col // 2
-                cnt = 0
-                while row != 0:
-                    cnt += 1
-                    gene[start_index + 13 - cnt] = row % 2
-                    row = row // 2
-            entity.append(gene)
-        self.entity = entity  # 包含所有个体的基因型的二维数组
-
-    def Population_Init(self):
-        '''
-        种群初始化
-        '''
-        return None
-
-    def Generate_Sample_AP(self):  # 生成可进行采样计算的各组AP
-        '''
-        '''
-        return None
-
-
 def gene2pos(gene):  # 将基因型解码至一个包含各AP位置的数组
     n = int(len(gene) / 13)
     pos = []
@@ -84,7 +38,50 @@ def gene2pos(gene):  # 将基因型解码至一个包含各AP位置的数组
         for j in range(6):
             row += gene[start_index + 7 + j] * np.power(2, 5 - j)
         pos.append([col, row])
-    return pos
+    if len(set(pos)) == len(pos):
+        return pos
+    else:
+        return None
+
+
+def pos2gene(pos):  #  将一个包含各AP位置的数组解码至基因型
+    number = len(pos)
+    gene = np.zeros(number * 13, dtype='int')  # 128 = 2^7, 64 = 2^6 各AP位置对应的基因型，先横坐标，后纵坐标
+    for i in range(number):
+        col = pos[i][0]
+        row = pos[i][1]
+        cnt = 0
+        start_index = i * 13
+        while col != 0:
+            cnt += 1
+            gene[start_index + 7 - cnt] = col % 2
+            col = col // 2
+        cnt = 0
+        while row != 0:
+            cnt += 1
+            gene[start_index + 13 - cnt] = row % 2
+            row = row // 2
+    return gene
+
+
+# step2 初始化种群 也是最难的一步，房间个数决定AP最大数目
+def init_population(number, N):  # number指AP数量，N是种群规模
+    """
+    初始化
+    """
+    solutions = []
+    for k in range(N):
+        pos = []
+        for i in range(number):
+            while True:
+                row = random.randint(0, 49)
+                col = random.randint(0, 119)
+                if env.structure[row][col] and ([col, row] in pos):
+                    continue
+                break
+            pos.append([col, row])
+        solutions.append(solution(pos))
+    return solutions
 
 
 # step3 计算适应度函数
