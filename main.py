@@ -1,7 +1,9 @@
 import random
 from solution import *
-from  env import *
+from env import *
 import numpy as np
+
+
 # class Map():
 #     '''
 #     :param:地图类
@@ -32,9 +34,10 @@ class Population:
         初始化
         """
         entity = []
-        self.number = number
+        self.N = N  # 循环时用
         for k in range(N):
-            gene = np.zeros(number * 13, dtype='int')  # 128 = 2^7, 64 = 2^6
+            pos = []
+            gene = np.zeros(number * 13, dtype='int')  # 128 = 2^7, 64 = 2^6 各AP位置对应的基因型，先横坐标，后纵坐标
             for i in range(number):
                 while True:
                     row = random.randint(0, 49)
@@ -42,6 +45,7 @@ class Population:
                     if env.structure[row][col] and ([col, row] in pos):
                         continue
                     break
+                pos.append([col, row])
                 cnt = 0
                 start_index = i * 13
                 while col != 0:
@@ -53,9 +57,8 @@ class Population:
                     cnt += 1
                     gene[start_index + 13 - cnt] = row % 2
                     row = row // 2
-            self.gene = gene  # 各AP位置对应的基因型，先横坐标，后纵坐标
             entity.append(gene)
-        self.entity = entity
+        self.entity = entity  # 包含所有个体的基因型的二维数组
 
     def Population_Init(self):
         '''
@@ -83,7 +86,8 @@ def gene2pos(gene):  # 将基因型解码至一个包含各AP位置的数组
         pos.append([col, row])
     return pos
 
-#step3 计算适应度函数
+
+# step3 计算适应度函数
 def calvalue(popu):
     '''
     :param popu: 传入种群信息
@@ -92,7 +96,8 @@ def calvalue(popu):
 
     return None
 
-#step4 选择
+
+# step4 选择
 def quick_sort(li, start, end):
     # 分治 一分为二
     # start=end ,证明要处理的数据只有一个
@@ -116,60 +121,62 @@ def quick_sort(li, start, end):
     # while结束后，把mid放到中间位置，left=right
     li[left] = mid
     # 递归处理左边的数据
-    quick_sort(li, start, left-1)
+    quick_sort(li, start, left - 1)
     # 递归处理右边的数据
-    quick_sort(li, left+1, end)
+    quick_sort(li, left + 1, end)
 
-def selection(pop,value):
+
+def selection(pop, value):
     '''
     :param pop:种群
     :param value:适应度值列表
     :return:返回新的种群
     '''
     quick_sort(pop, 0, len(pop))
-    ini_length = len(pop)#输入个体的总数
-    remaining_number = ini_length // 2#确定保留的强者数量
-    danger_number = ini_length - remaining_number#可能会被淘汰的弱者数量
-    elimination_rate = []#弱者们各自可能被淘汰的概率
-    random_deci = []#存放随机的小数
+    ini_length = len(pop)  # 输入个体的总数
+    remaining_number = ini_length // 2  # 确定保留的强者数量
+    danger_number = ini_length - remaining_number  # 可能会被淘汰的弱者数量
+    elimination_rate = []  # 弱者们各自可能被淘汰的概率
+    random_deci = []  # 存放随机的小数
     inteval = 1 / danger_number
-    #分别计算死亡淘汰概率和随机数
+    # 分别计算死亡淘汰概率和随机数
     for i in range(0, danger_number):
         elimination_rate.append(i * inteval)
     for i in range(0, danger_number):
         random_deci.append(random.random())
-    new_popu = []       #选择后的个体
+    new_popu = []  # 选择后的个体
     for i in range(0, remaining_number):
         new_popu.append(pop[i])
-    #如果随机数大于淘汰概率，则个体保留
+    # 如果随机数大于淘汰概率，则个体保留
     for i in range(0, danger_number):
         if elimination_rate[i] < random_deci[i]:
             new_popu.append(pop[remaining_number + i])
     return new_popu
 
-#step5 交叉   拟采用单点交叉
-def cross(parents_entity,pc):
+
+# step5 交叉   拟采用单点交叉
+def cross(parents_entity, pc):
     '''
     :param parents: 交叉的父类
     :param pc:   交叉概率
     :return:
     '''
     parents = []
-    children = []  #首先创建一个子代 空列表 存放交叉后的种群基因型
-    single_popu_index_list = []#存放重复内容的指针
-    lenparents = len(parents_entity)  #先提取出父代的个数  因为要配对 奇数个的话会剩余一个
+    children = []  # 首先创建一个子代 空列表 存放交叉后的种群基因型
+    single_popu_index_list = []  # 存放重复内容的指针
+    lenparents = len(parents_entity)  # 先提取出父代的个数  因为要配对 奇数个的话会剩余一个
     for i in range(0, lenparents):
         parents.append(parents_entity[i].gene)
-    parity = lenparents % 2 #计算出长度奇偶性  parity= 1 说明是奇数个  则需要把最后一条个体直接加上 不交叉
-    for i in range(0,lenparents-1,2):       #每次取出两条个体 如果是奇数个则长度要减去 一  range函数不会取最后一个
-        single_now_popu = parents[i]        #取出当前选中的两个父代中的第一个
-        single_next_popu = parents[i+1]     #取出当前选中的两个父代中的第二个
-        index_content = list(set(single_now_popu).intersection(set(single_next_popu))) #第一条路经与第二条路经重复的内容
-        num_rep = len(index_content)          #重复内容的个数
-        if random.random() < pc and num_rep>=3:
-            content = index_content[random.randint(0,num_rep-1)]   #随机选取一个重复的内容
-            now_index = single_now_popu.index(content)  #重复内容在第一个父代中的索引
-            next_index = single_next_popu.index(content)#重复内容在第二个父代中的索引
+    parity = lenparents % 2  # 计算出长度奇偶性  parity= 1 说明是奇数个  则需要把最后一条个体直接加上 不交叉
+    for i in range(0, lenparents - 1, 2):  # 每次取出两条个体 如果是奇数个则长度要减去 一  range函数不会取最后一个
+        single_now_popu = parents[i]  # 取出当前选中的两个父代中的第一个
+        single_next_popu = parents[i + 1]  # 取出当前选中的两个父代中的第二个
+        index_content = list(set(single_now_popu).intersection(set(single_next_popu)))  # 第一条路经与第二条路经重复的内容
+        num_rep = len(index_content)  # 重复内容的个数
+        if random.random() < pc and num_rep >= 3:
+            content = index_content[random.randint(0, num_rep - 1)]  # 随机选取一个重复的内容
+            now_index = single_now_popu.index(content)  # 重复内容在第一个父代中的索引
+            next_index = single_next_popu.index(content)  # 重复内容在第二个父代中的索引
             children.append(single_now_popu[0:now_index + 1] + single_next_popu[next_index + 1:])
             children.append(single_next_popu[0:next_index + 1] + single_now_popu[now_index + 1:])
             children.append(single_now_popu)
@@ -177,12 +184,13 @@ def cross(parents_entity,pc):
         else:
             children.append(single_now_popu)
             children.append(single_next_popu)
-    if parity == 1:     #如果是个奇数  为了保证种群规模不变 需要加上最后一条
-        children.append(parents[lenparents - 1]) #子代在添加一行,直接遗传给下一代
+    if parity == 1:  # 如果是个奇数  为了保证种群规模不变 需要加上最后一条
+        children.append(parents[lenparents - 1])  # 子代在添加一行,直接遗传给下一代
     return children
 
-#step6 变异
-def mutation(children,pm):
+
+# step6 变异
+def mutation(children, pm):
     '''
     :param children: 子代种群
     :param pm: 变异概率
@@ -200,7 +208,9 @@ def mutation(children,pm):
         count += 1
     return new_popu
 
+
 if __name__ == '__main__':
     env = Env()
 
-    print("result is " )
+    print("result is ")
+
