@@ -153,3 +153,4 @@ if __name__ == '__main__':
     env = Env(len(room), room)
     print(env.structure)
     print(env.checkpoint)
+
