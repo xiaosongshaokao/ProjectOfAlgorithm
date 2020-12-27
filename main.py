@@ -44,7 +44,7 @@ def gene2pos(gene):  # 将基因型解码至一个包含各AP位置的数组
         return None
 
 
-def pos2gene(pos):  #  将一个包含各AP位置的数组解码至基因型
+def pos2gene(pos):  # 将一个包含各AP位置的数组解码至基因型
     number = len(pos)
     gene = np.zeros(number * 13, dtype='int')  # 128 = 2^7, 64 = 2^6 各AP位置对应的基因型，先横坐标，后纵坐标
     for i in range(number):
@@ -145,8 +145,6 @@ def selection(pop):
     for i in range(0, remaining_number):
         new_popu.append(pop[i])
     # 如果随机数大于淘汰概率，则个体保留
-    for i in elimination_rate:
-        i = 0
     for i in range(0, danger_number):
         if elimination_rate[i] < random_deci[i]:
             new_popu.append(pop[remaining_number + i])
@@ -168,16 +166,17 @@ def cross(parents_entity, pc):
         parents.append(parents_entity[i].gene)
     parity = lenparents % 2  # 计算出长度奇偶性  parity= 1 说明是奇数个  则需要把最后一条个体直接加上 不交叉
     for i in range(0, lenparents - 1, 2):  # 每次取出两条个体 如果是奇数个则长度要减去 一  range函数不会取最后一个
-        single_now_popu = parents[i]  # 取出当前选中的两个父代中的第一个
-        single_next_popu = parents[i + 1]  # 取出当前选中的两个父代中的第二个
-        index_content = list(set(single_now_popu).intersection(set(single_next_popu)))  # 第一条路经与第二条路经重复的内容
+        single_now_popu = parents[i].tolist()  # 取出当前选中的两个父代中的第一个
+        single_next_popu = parents[i + 1].tolist()  # 取出当前选中的两个父代中的第二个
+        index_content = []
+        for j in range(len(single_next_popu)):
+            if single_next_popu[j] == single_now_popu[j]:
+                index_content.append(j)
         num_rep = len(index_content)  # 重复内容的个数
-        if random.random() < pc and num_rep >= 3:
-            content = index_content[random.randint(0, num_rep - 1)]  # 随机选取一个重复的内容
-            now_index = single_now_popu.index(content)  # 重复内容在第一个父代中的索引
-            next_index = single_next_popu.index(content)  # 重复内容在第二个父代中的索引
-            children.append(single_now_popu[0:now_index + 1] + single_next_popu[next_index + 1:])
-            children.append(single_next_popu[0:next_index + 1] + single_now_popu[now_index + 1:])
+        if random.random() < pc and num_rep >= 1:
+            index = index_content[random.randint(0, num_rep - 1)]  # 随机选取一个重复的内容
+            children.append(single_now_popu[0:index + 1] + single_next_popu[index + 1:])
+            children.append(single_next_popu[0:index + 1] + single_now_popu[index + 1:])
             children.append(single_now_popu)
             children.append(single_next_popu)
         else:
@@ -239,7 +238,10 @@ if __name__ == '__main__':
             init_sol = []
             for gene in population_After_mutation:
                 pos = gene2pos(gene)
+                if pos is None:
+                    continue
                 solution_new = solution(pos)
+                print(pos)
                 results_in_background_new = solution_new.fitness(env)
                 solution_new.judgePopulation(results_in_background_new)
                 init_sol.append(solution_new)
@@ -248,4 +250,5 @@ if __name__ == '__main__':
             # print("number", len(init_sol))
             # for res in init_sol:
             #     print(res.fit_number)
+
 
