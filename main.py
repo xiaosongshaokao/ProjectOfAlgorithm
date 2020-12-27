@@ -38,7 +38,7 @@ def gene2pos(gene):  # 将基因型解码至一个包含各AP位置的数组
         for j in range(6):
             row += gene[start_index + 7 + j] * np.power(2, 5 - j)
         pos.append([col, row])
-    if len(set(pos)) == len(pos):
+    if len(set([tuple(t) for t in pos])) == len(pos):
         return pos
     else:
         return None
@@ -123,13 +123,13 @@ def quick_sort(li, start, end):
     quick_sort(li, left + 1, end)
 
 
-def selection(pop, value):
+def selection(pop):
     '''
     :param pop:种群
     :param value:适应度值列表
     :return:返回新的种群
     '''
-    quick_sort(pop, 0, len(pop))
+    quick_sort(pop, 0, len(pop) - 1)
     ini_length = len(pop)  # 输入个体的总数
     remaining_number = ini_length // 2  # 确定保留的强者数量
     danger_number = ini_length - remaining_number  # 可能会被淘汰的弱者数量
@@ -145,6 +145,8 @@ def selection(pop, value):
     for i in range(0, remaining_number):
         new_popu.append(pop[i])
     # 如果随机数大于淘汰概率，则个体保留
+    for i in elimination_rate:
+        i = 0
     for i in range(0, danger_number):
         if elimination_rate[i] < random_deci[i]:
             new_popu.append(pop[remaining_number + i])
@@ -207,7 +209,43 @@ def mutation(children, pm):
 
 
 if __name__ == '__main__':
-    env = Env()
+    room = {}
+    room[1] = [[0, 0], [29, 0], [0, 9], [19, 9], [20, 24], [30, 24]]
+    room[2] = [[29, 0], [59, 0], [29, 24], [59, 24]]
+    room[3] = [[59, 0], [119, 0], [59, 9], [119, 9]]
+    room[4] = [[0, 9], [19, 9], [0, 39], [19, 39]]
+    room[5] = [[19, 24], [49, 24], [0, 39], [19, 39], [0, 49], [49, 49]]
+    room[6] = [[59, 9], [94, 9], [49, 24], [59, 24], [49, 39], [74, 39], [74, 42], [94, 42]]
+    room[7] = [[94, 9], [119, 9], [94, 42], [119, 42]]
+    room[8] = [[49, 39], [74, 39], [49, 49], [74, 49]]
+    room[9] = [[74, 42], [119, 42], [74, 49], [119, 49]]
+    env = Env(nroom=9, room=room)
+    optimal_solutions = []
+    count = 1
+    for i in range(5, 6):
+        init_sol = init_population(i + 1, 10)
+        for entity in init_sol:
+            results_in_background = entity.fitness(env)
+            entity.judgePopulation(results_in_background)
+        while count <= 100:
+            print("epoch", count)
+            print("0000", len(init_sol))
+            population_After_selection = selection(init_sol)
+            print("1111", len(population_After_selection))
+            population_After_cross = cross(population_After_selection, 0.5)
+            print("2222", len(population_After_cross))
+            population_After_mutation = mutation(population_After_cross, 0.01)
+            pos = []
+            init_sol = []
+            for gene in population_After_mutation:
+                pos = gene2pos(gene)
+                solution_new = solution(pos)
+                results_in_background_new = solution_new.fitness(env)
+                solution_new.judgePopulation(results_in_background_new)
+                init_sol.append(solution_new)
+            count += 1
 
-    print("result is ")
+            # print("number", len(init_sol))
+            # for res in init_sol:
+            #     print(res.fit_number)
 
