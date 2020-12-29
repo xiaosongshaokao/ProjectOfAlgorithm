@@ -2,7 +2,7 @@ import random
 from solution import *
 from env import *
 import numpy as np
-
+import matplotlib.pyplot as plt
 
 # class Map():
 #     '''
@@ -130,6 +130,8 @@ def selection(pop):
     :return:返回新的种群
     '''
     quick_sort(pop, 0, len(pop) - 1)
+    if len(pop) > 200:
+        pop = pop[len(pop) - 201:]
     ini_length = len(pop)  # 输入个体的总数
     remaining_number = ini_length // 2  # 确定保留的强者数量
     danger_number = ini_length - remaining_number  # 可能会被淘汰的弱者数量
@@ -143,11 +145,11 @@ def selection(pop):
         random_deci.append(random.random())
     new_popu = []  # 选择后的个体
     for i in range(0, remaining_number):
-        new_popu.append(pop[i])
+        new_popu.append(pop[len(pop) - 1 - i])
     # 如果随机数大于淘汰概率，则个体保留
     for i in range(0, danger_number):
         if elimination_rate[i] < random_deci[i]:
-            new_popu.append(pop[remaining_number + i])
+            new_popu.append(pop[len(pop) - 1 - remaining_number - i])
     return new_popu
 
 
@@ -219,7 +221,7 @@ if __name__ == '__main__':
     room[8] = [[49, 39], [74, 39], [49, 49], [74, 49]]
     room[9] = [[74, 42], [119, 42], [74, 49], [119, 49]]
     env = Env(nroom=9, room=room)
-    optimal_solutions = []
+    optimal_solutions = [0.01]
     count = 1
     for i in range(5, 6):
         init_sol = init_population(i + 1, 10)
@@ -227,11 +229,12 @@ if __name__ == '__main__':
             results_in_background = entity.fitness(env)
             entity.judgePopulation(results_in_background)
         while count <= 100:
+            average = 0
             print("epoch", count)
             print("0000", len(init_sol))
             population_After_selection = selection(init_sol)
             print("1111", len(population_After_selection))
-            population_After_cross = cross(population_After_selection, 0.5)
+            population_After_cross = cross(population_After_selection, 0.8)
             print("2222", len(population_After_cross))
             population_After_mutation = mutation(population_After_cross, 0.01)
             pos = []
@@ -241,14 +244,21 @@ if __name__ == '__main__':
                 if pos is None:
                     continue
                 solution_new = solution(pos)
-                print(pos)
                 results_in_background_new = solution_new.fitness(env)
                 solution_new.judgePopulation(results_in_background_new)
                 init_sol.append(solution_new)
+            quick_sort(init_sol, 0, len(init_sol) - 1)
+            for i in range(0, 5):
+                average = average + init_sol[len(init_sol) - 1 - i].fit_number
+            average = average // 5
+            optimal_solutions.append(average)
+            if (optimal_solutions[count] - optimal_solutions[count - 1]) / optimal_solutions[count - 1] < 0.0001 and count > 30:
+                print(optimal_solutions[count])
+                print(optimal_solutions[count - 1])
+                break
             count += 1
+    print(optimal_solutions)
+    plt.plot(optimal_solutions)
 
-            # print("number", len(init_sol))
-            # for res in init_sol:
-            #     print(res.fit_number)
-
+    plt.show()
 
