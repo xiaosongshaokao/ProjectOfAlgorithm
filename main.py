@@ -223,12 +223,12 @@ if __name__ == '__main__':
     env = Env(nroom=9, room=room)
     optimal_solutions = [0.01]
     count = 1
-    for i in range(5, 6):
+    for i in range(9, 10):
         init_sol = init_population(i + 1, 10)
         for entity in init_sol:
             results_in_background = entity.fitness(env)
             entity.judgePopulation(results_in_background)
-        while count <= 100:
+        while count <= 1000:
             average = 0
             print("epoch", count)
             print("0000", len(init_sol))
@@ -236,7 +236,7 @@ if __name__ == '__main__':
             print("1111", len(population_After_selection))
             population_After_cross = cross(population_After_selection, 0.8)
             print("2222", len(population_After_cross))
-            population_After_mutation = mutation(population_After_cross, 0.01)
+            population_After_mutation = mutation(population_After_cross, 0.001)
             pos = []
             init_sol = []
             for gene in population_After_mutation:
@@ -252,7 +252,7 @@ if __name__ == '__main__':
                 average = average + init_sol[len(init_sol) - 1 - i].fit_number
             average = average // 5
             optimal_solutions.append(average)
-            if (optimal_solutions[count] - optimal_solutions[count - 1]) / optimal_solutions[count - 1] < 0.0001 and count > 30:
+            if -0.0001 < (optimal_solutions[count] - optimal_solutions[count - 1]) / optimal_solutions[count - 1] < 0.0001 and count > 250:
                 print(optimal_solutions[count])
                 print(optimal_solutions[count - 1])
                 break

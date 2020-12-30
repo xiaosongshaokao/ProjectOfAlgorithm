@@ -1,6 +1,6 @@
 # 这个文件中需要写一个解类，此类需要包含一个解中所有的AP分布，并包含适应度函数
 from env import *
-
+import cmath
 
 def pos2gene(pos):  # 将一个包含各AP位置的数组解码至基因型
     number = len(pos)
@@ -27,7 +27,7 @@ class solution:
     def __init__(self, location):
         self.location = location
         self.fit_number = 0
-        self.emission_intensity = 1
+        self.emission_intensity = 100
         self.gene = pos2gene(location)
 
     def ThroughTheWall(self, AP, TestPoint, background):  # 计算从信号发射点到信号检测点穿墙次数
@@ -77,7 +77,7 @@ class solution:
     def reduction(self, times, distance):
         reduce = 1
         loss = (distance) ** 0.5 * 10 ** times
-        reduce = reduce * loss
+        reduce = reduce / loss
         return reduce
 
     def fitness(self, background):  # 适应度函数，返回值为每个solution中的每个房间的所有监测点处信号强度
@@ -94,6 +94,8 @@ class solution:
                 for AP in self.location:
                     times = self.ThroughTheWall(AP, point, background)
                     distance = ((AP[0] - point[0]) ** 2 + (AP[1] - point[1]) ** 2) ** 0.5
+                    if distance == 0:
+                        continue
                     reduction = self.reduction(times, distance)
                     result_at_the_point += self.emission_intensity * reduction
                 results.append(result_at_the_point)
