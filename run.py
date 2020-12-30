@@ -227,8 +227,8 @@ if __name__ == '__main__':
         #赵常淇 range(3,6)
         #宋毅程 range(6,9)
         numOfAP = i+1
-        for j in range (10,200,10):
-            #需要根据图像做调整 对相对较密的地方把步长改小
+        for j in (10,50,200):
+            #先这样
             optimal_solutions = [0.01]
             count = 1
             init_sol = init_population(i + 1, j)
@@ -260,8 +260,8 @@ if __name__ == '__main__':
                     average = average + init_sol[len(init_sol) - 1 - i].fit_number
                 average = average // 5
                 optimal_solutions.append(average)
-                if -0.01 < (optimal_solutions[count] - optimal_solutions[count - 1]) / optimal_solutions[
-                    count - 1] < 0.01 and count > 200:
+                if -0.1 < (optimal_solutions[count] - optimal_solutions[count - 1]) / optimal_solutions[
+                    count - 1] < 0.1 and count > 200:
                 #我选的是收敛条件0.01 最好不要改动 保持一致 如果要改在群里说一下
                 #print(optimal_solutions[count])
                 #print(optimal_solutions[count - 1])
@@ -270,6 +270,6 @@ if __name__ == '__main__':
             print("AP",numOfAP,"Init pop",j)
             print("end epoch",count)
             print("result during evualtion",optimal_solutions)
-    #plt.plot(optimal_solutions)
+            plt.plot(optimal_solutions)
 
-    #plt.show()
+            plt.show()
