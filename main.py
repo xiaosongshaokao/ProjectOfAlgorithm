@@ -221,44 +221,50 @@ if __name__ == '__main__':
     room[8] = [[49, 39], [74, 39], [49, 49], [74, 49]]
     room[9] = [[74, 42], [119, 42], [74, 49], [119, 49]]
     env = Env(nroom=9, room=room)
-    optimal_solutions = [0.01]
-    count = 1
-    for i in range(9, 10):
-        init_sol = init_population(i + 1, 10)
-        for entity in init_sol:
-            results_in_background = entity.fitness(env)
-            entity.judgePopulation(results_in_background)
-        while count <= 1000:
-            average = 0
-            print("epoch", count)
-            print("0000", len(init_sol))
-            population_After_selection = selection(init_sol)
-            print("1111", len(population_After_selection))
-            population_After_cross = cross(population_After_selection, 0.8)
-            print("2222", len(population_After_cross))
-            population_After_mutation = mutation(population_After_cross, 0.001)
-            pos = []
-            init_sol = []
-            for gene in population_After_mutation:
-                pos = gene2pos(gene)
-                if pos is None:
-                    continue
-                solution_new = solution(pos)
-                results_in_background_new = solution_new.fitness(env)
-                solution_new.judgePopulation(results_in_background_new)
-                init_sol.append(solution_new)
-            quick_sort(init_sol, 0, len(init_sol) - 1)
-            for i in range(0, 5):
-                average = average + init_sol[len(init_sol) - 1 - i].fit_number
-            average = average // 5
-            optimal_solutions.append(average)
-            if -0.0001 < (optimal_solutions[count] - optimal_solutions[count - 1]) / optimal_solutions[count - 1] < 0.0001 and count > 250:
-                print(optimal_solutions[count])
-                print(optimal_solutions[count - 1])
-                break
-            count += 1
-    print(optimal_solutions)
-    plt.plot(optimal_solutions)
 
-    plt.show()
-
+    for i in range(0, 3):
+        numOfAP = i+1
+        for j in range (10,210,20):
+            #需要根据图像做调整 对相对较密的地方把步长改小
+            optimal_solutions = [0.01]
+            count = 1
+            init_sol = init_population(i + 1, j)
+            for entity in init_sol:
+                results_in_background = entity.fitness(env)
+                entity.judgePopulation(results_in_background)
+            while count <= 1000:
+            #根据需要也可以改动
+                average = 0
+                population_After_selection = selection(init_sol)
+            # print("1111", len(population_After_selection))
+                population_After_cross = cross(population_After_selection, 0.8)
+            # print("2222", len(population_After_cross))
+                population_After_mutation = mutation(population_After_cross, 0.001)
+                pos = []
+                init_sol = []
+                for gene in population_After_mutation:
+                    pos = gene2pos(gene)
+                    if pos is None:
+                        continue
+                    solution_new = solution(pos)
+                    results_in_background_new = solution_new.fitness(env)
+                    solution_new.judgePopulation(results_in_background_new)
+                    init_sol.append(solution_new)
+                quick_sort(init_sol, 0, len(init_sol) - 1)
+                for k in range(0, 5):
+                    average = average + init_sol[len(init_sol) - 1 - k].fit_number
+                average = average // 5
+                optimal_solutions.append(average)
+                if -0.01 < (optimal_solutions[count] - optimal_solutions[count - 1]) / optimal_solutions[
+                    count - 1] < 0.01 and count > 200:
+                #print(optimal_solutions[count])
+                #print(optimal_solutions[count - 1])
+                    break
+                count += 1
+            print("AP",numOfAP,"Init pop",j)
+            print("end epoch",count)
+            print("result during evualtion",optimal_solutions)
+            plt.plot(optimal_solutions)
+            save_path = str(i + 1) + "-" + str(j)+".png"
+            plt.savefig(save_path)
+            plt.close()
